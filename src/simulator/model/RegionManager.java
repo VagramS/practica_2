@@ -1,6 +1,7 @@
 package simulator.model;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -115,6 +116,11 @@ public class RegionManager implements AnimalMapView {
 				.filter(filter).collect(Collectors.toList());
 
 		return animalsInRange;
+	}
+	
+	public Iterator<RegionData> iterator() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public JSONObject as_JSON() {

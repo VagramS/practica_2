@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -27,8 +29,8 @@ import simulator.model.*;
 
 public class Main {
 
-	protected static Factory<Animal> _animals_factory;
-	protected static Factory<Region> _regions_factory;
+	public static Factory<Animal> _animals_factory;
+	public static Factory<Region> _regions_factory;
 	private static int rows;
 	private static int cols;
 	private static int width;
@@ -63,10 +65,10 @@ public class Main {
 	//
 	private static String _out_file = null;
 	private static Double _time = null;
-	private static Double _delta_time = null;
+	public static Double _delta_time = null;
 	private static String _in_file = null;
 	private static boolean _simpleViewer = false;
-	private static ExecMode _mode = ExecMode.BATCH;
+	private static ExecMode _mode = null;
 
 	private static void parse_args(String[] args) {
 
@@ -85,6 +87,7 @@ public class Main {
 			parse_delta_time_option(line);
 			parse_out_file_option(line);
 			parse_simple_viewer_option(line);
+			parse_mode_option(line);
 
 			// if there are some remaining arguments, then something wrong is
 			// provided in the command line!
@@ -116,22 +119,28 @@ public class Main {
 		// help
 		cmdLineOptions.addOption(Option.builder("h").longOpt("help").desc("Print this message.").build());
 
+		// mode
+		cmdLineOptions
+				.addOption(Option.builder("m").longOpt("mode").hasArg().desc("Execution Mode. Possible values: 'batch' (Batch\n"
+						+ "mode), 'gui' (Graphical User Interface mode).\n"
+						+ "Default value: 'gui'.").build());
+		
 		// input file
 		cmdLineOptions
-				.addOption(Option.builder("i").longOpt("input").hasArg().desc("Initial configuration file.").build());
+				.addOption(Option.builder("i").longOpt("input").hasArg().desc("A configuration file (optional in GUI mode)").build());
 
 		// output file
 		cmdLineOptions.addOption(
-				Option.builder("o").longOpt("output").hasArg().desc("Output file, where output is written.").build());
+				Option.builder("o").longOpt("output").hasArg().desc("A file where output is written (only for BATCH mode).").build());
 
 		// simple viewer
 		cmdLineOptions.addOption(
-				Option.builder("sv").longOpt("simple-viewer").desc("Show the viewer window in console mode.").build());
+			Option.builder("sv").longOpt("simple-viewer").desc("Show the viewer window in BATCH mode.").build());
 
 		// steps
 		cmdLineOptions.addOption(Option.builder("t").longOpt("time").hasArg()
 				.desc("An real number representing the total simulation time in seconds. Default value: "
-						+ _default_time + ".")
+						+ _default_time + ". (only for BATCH mode)")
 				.build());
 
 		return cmdLineOptions;
@@ -144,6 +153,21 @@ public class Main {
 			System.exit(0);
 		}
 	}
+	
+	private static void parse_mode_option(CommandLine line) throws ParseException {
+		if (line.hasOption("m")) {
+			String mode = line.getOptionValue("m");
+	        if("BATCH".equalsIgnoreCase(mode))
+	            _mode = ExecMode.BATCH;
+	        else if("GUI".equalsIgnoreCase(mode))
+	            _mode = ExecMode.GUI;
+	        else
+	            throw new IllegalArgumentException("This mode doesn't exist");
+		}
+		else
+			throw new ParseException("No mode selected");
+			
+	}
 
 	private static void parse_in_file_option(CommandLine line) throws ParseException {
 		_in_file = line.getOptionValue("i");
@@ -152,10 +176,10 @@ public class Main {
 		}
 	}
 
-	private static void parse_out_file_option(CommandLine line) {
+	private static void parse_out_file_option(CommandLine line) throws ParseException {
 		_out_file = line.getOptionValue("o");
-		if (_out_file == null)
-			System.err.println("Output file not specified. Using default output location.");
+		if (_mode == ExecMode.BATCH && _out_file == null)
+			throw new ParseException("Output file not specified. Using default output location.");
 	}
 
 	private static void parse_time_option(CommandLine line) throws ParseException {
@@ -236,7 +260,8 @@ public class Main {
 	}
 
 	private static void start_GUI_mode() throws Exception {
-		throw new UnsupportedOperationException("GUI mode is not ready yet ...");
+		//do code
+		SwingUtilities.invokeAndWait(() -> new MainWindow(ctrl));
 	}
 
 	private static void start(String[] args) throws Exception {
