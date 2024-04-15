@@ -69,22 +69,24 @@ public abstract class Animal implements Entity, AnimalInfo {
 		this._speed = Utils.get_randomized_parameter((p1.get_speed() + p2.get_speed()) / 2, SIGHT_RANGE_SPEED_PARAM);
 	}
 
+	public Vector2D generateRandomPosition() {
+        double x = Utils._rand.nextDouble(0, _region_mngr.get_width() - 1);
+        double y = Utils._rand.nextDouble(0, _region_mngr.get_height() - 1);
+        return new Vector2D(x, y);
+    }
+	
 	void init(AnimalMapView reg_mngr) {
-		double x, y;
 		this._region_mngr = reg_mngr;
 
 		if (_pos == null) {
-			x = Utils._rand.nextDouble(0, _region_mngr.get_width() - 1);
-			y = Utils._rand.nextDouble(0, _region_mngr.get_height() - 1);
+			 _pos = generateRandomPosition();
 		} else {
-			x = Utils.constrain_value_in_range(_pos.getX(), 0, _region_mngr.get_width() - 1);
-			y = Utils.constrain_value_in_range(_pos.getY(), 0, _region_mngr.get_height() - 1);
+			double x = Utils.constrain_value_in_range(_pos.getX(), 0, _region_mngr.get_width() - 1);
+			double y = Utils.constrain_value_in_range(_pos.getY(), 0, _region_mngr.get_height() - 1);
+			_pos = new Vector2D(x, y);
 		}
-		_pos = new Vector2D(x, y);
 
-		double destX = Utils._rand.nextDouble(0, _region_mngr.get_width() - 1);
-		double destY = Utils._rand.nextDouble(0, _region_mngr.get_height() - 1);
-		_dest = new Vector2D(destX, destY);
+		 _dest = generateRandomPosition();
 	}
 
 	Animal deliver_baby() {

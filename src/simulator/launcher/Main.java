@@ -26,6 +26,7 @@ import simulator.control.Controller;
 import simulator.factories.*;
 import simulator.misc.Utils;
 import simulator.model.*;
+import simulator.view.MainWindow;
 
 public class Main {
 
@@ -245,23 +246,46 @@ public class Main {
 		Controller control = new Controller(_sim);
 		control.load_data(simulationData);
 
-		boolean simpleViewer = _simpleViewer;
-		double time = _time != null ? _time : _default_time;
-		double delta_time = _delta_time != null ? _delta_time : _default_delta_time;
-		control.run(time, delta_time, simpleViewer, print_stream);
-
-		List<? extends AnimalInfo> finalAnimals = _sim.get_animals();
-		finalAnimals.forEach(animal -> {
-			JSONObject animalJson = animal.as_JSON();
-			print_stream.println(animalJson.toString(4));
-		});
+		if(_time == null)
+			_time = _default_time;
+		
+		if(_delta_time == null)
+			_delta_time = _default_delta_time;
+		
+		control.run(_time, _delta_time, _simpleViewer, print_stream);
 
 		print_stream.close();
 	}
 
 	private static void start_GUI_mode() throws Exception {
-		//do code
-		SwingUtilities.invokeAndWait(() -> new MainWindow(ctrl));
+		// -i opcional
+		// -t, -o, sv ignora
+		// -dt necesario
+		
+		  Controller ctrl;
+
+		    if (_in_file != null) {
+		        // Input file has been provided; load it
+		        InputStream is = new FileInputStream(new File(_in_file));
+		        JSONObject simulationData = load_JSON_file(is);
+		        is.close(); // Close the InputStream after use
+
+		        int simulationWidth = simulationData.getInt("width");
+		        int simulationHeight = simulationData.getInt("height");
+		        int simulationCols = simulationData.getInt("cols");
+		        int simulationRows = simulationData.getInt("rows");
+
+		        Simulator sim = new Simulator(simulationCols, simulationRows, simulationWidth, simulationHeight, _animals_factory, _regions_factory);
+		        ctrl = new Controller(sim);
+		        ctrl.load_data(simulationData); // Load the data into the simulator
+		    } else {
+		        // No input file provided; use default values
+		        Simulator sim = new Simulator(20, 15, 800, 600, _animals_factory, _regions_factory);
+		        ctrl = new Controller(sim);
+		    }
+
+		    // Create the GUI in the event dispatch thread
+		    SwingUtilities.invokeAndWait(() -> new MainWindow(ctrl));
 	}
 
 	private static void start(String[] args) throws Exception {

@@ -1,4 +1,4 @@
-package extra.src.extra.jdialog.ex2;
+package extra.jdialog.ex2;
 
 import javax.swing.*;
 

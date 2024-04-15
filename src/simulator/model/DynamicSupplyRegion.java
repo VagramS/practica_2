@@ -42,6 +42,7 @@ public class DynamicSupplyRegion extends Region {
 	
 	public String toString()
 	{
-		return "Dynamic region";
+		return "dynamic";
 	}
+
 }

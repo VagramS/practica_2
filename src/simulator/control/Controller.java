@@ -1,7 +1,9 @@
 package simulator.control;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import simulator.model.AnimalInfo;
+import simulator.model.EcoSysObserver;
 import simulator.model.MapInfo;
 import simulator.model.Simulator;
 import simulator.view.SimpleObjectViewer;
@@ -19,35 +22,34 @@ public class Controller {
 	public Controller(Simulator sim) {
 		this._sim = sim;
 	}
-
+	
+	public void loadFile(File file) {
+        try {
+            String content = new String(Files.readAllBytes(file.toPath()));
+            JSONObject jsonObj = new JSONObject(content);
+            load_data(jsonObj);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Handle exceptions or errors here
+        }
+    }
+	
 	public void load_data(JSONObject data) {
-		if (data.has("regions")) {
-			JSONArray regions = data.getJSONArray("regions");
-			for (int i = 0; i < regions.length(); i++) {
-				JSONObject region = regions.getJSONObject(i);
-				JSONArray rowRange = region.getJSONArray("row");
-				JSONArray colRange = region.getJSONArray("col");
-				JSONObject spec = region.getJSONObject("spec");
+		if (data.has("regions"))
+            set_regions(data.getJSONObject("regions"));
 
-				for (int r = rowRange.getInt(0); r <= rowRange.getInt(1); r++) {
-					for (int c = colRange.getInt(0); c <= colRange.getInt(1); c++) {
-						_sim.set_region(r, c, spec);
-					}
-				}
-			}
-		}
+        if (data.has("animals")) 
+        {
+            JSONArray animals = data.getJSONArray("animals");
+            for (int i = 0; i < animals.length(); i++) {
+                JSONObject animal = animals.getJSONObject(i);
+                int amount = animal.getInt("amount");
+                JSONObject spec = animal.getJSONObject("spec");
 
-		if (data.has("animals")) {
-			JSONArray animals = data.getJSONArray("animals");
-			for (int i = 0; i < animals.length(); i++) {
-				JSONObject animal = animals.getJSONObject(i);
-				int amount = animal.getInt("amount");
-				JSONObject spec = animal.getJSONObject("spec");
-
-				for (int j = 0; j < amount; j++)
-					_sim.add_animal(spec);
-			}
-		}
+                for (int j = 0; j < amount; j++)
+                    _sim.add_animal(spec);
+            }
+        }
 	}
 
 	public void run(double t, double dt, boolean sv, OutputStream out) {
@@ -69,18 +71,11 @@ public class Controller {
 		JSONObject res = new JSONObject();
 		res.put("in", init_state);
 		res.put("out", final_state);
-
-		try {
-			PrintStream p = new PrintStream(out);
-			p.println(res.toString(4));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
+		PrintStream p = new PrintStream(out);
+		p.println(res.toString(4));
 
 		view.close();
-	}
-
-	public record ObjInfo(String tag, int x, int y, int size) {
 	}
 
 	private List<SimpleObjectViewer.ObjInfo> to_animals_info(List<? extends AnimalInfo> animals) {
@@ -91,4 +86,46 @@ public class Controller {
 		}
 		return ol;
 	}
+	
+	public void reset(int cols, int rows, int width, int height)
+	{
+		_sim.reset(cols, rows, width, height);
+	}
+	
+	public void set_regions(JSONObject rs)
+	{
+		JSONArray regions = rs.getJSONArray("regions");
+        for (int i = 0; i < regions.length(); i++) 
+        {
+            JSONObject region = regions.getJSONObject(i);
+            JSONArray rowRange = region.getJSONArray("row");
+            JSONArray colRange = region.getJSONArray("col");
+            JSONObject spec = region.getJSONObject("spec");
+
+            for (int r = rowRange.getInt(0); r <= rowRange.getInt(1); r++) {
+                for (int c = colRange.getInt(0); c <= colRange.getInt(1); c++) {
+                    _sim.set_region(r, c, spec);
+                }
+            }
+        }
+	}
+	
+	public void advance(double dt)
+	{
+		_sim.advance(dt);
+	}
+	
+	public void addObserver(EcoSysObserver o)
+	{
+		_sim.addObserver(o);
+	}
+	
+	public void removeObserver(EcoSysObserver o)
+	{
+		_sim.removeObserver(o);
+	}
+	
+	public Simulator getSimulator() {
+        return _sim;
+    }
 }

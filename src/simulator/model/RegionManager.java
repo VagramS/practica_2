@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -31,12 +32,26 @@ public class RegionManager implements AnimalMapView {
 		this._regions = new Region[rows][cols];
 
 		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < cols; j++) {
+			for (int j = 0; j < cols; j++) 
 				this._regions[i][j] = new DefaultRegion();
-			}
 		}
 
 		this._animal_region = new HashMap<>();
+	}
+	
+
+	Region get_region(Animal a)
+	{
+		Region reg = null;
+		int col = (int) a._pos.getX() / this.get_region_width();
+		int row = (int) a._pos.getY() / this.get_region_height();
+		
+		if(col >= 0 && col < _cols && row >= 0 && row < _rows)
+			 reg = _regions[row][col];
+		else
+			throw new IllegalArgumentException("Region doesn't exist");
+		
+		return reg;
 	}
 
 	void set_region(int row, int col, Region r) {
@@ -54,51 +69,47 @@ public class RegionManager implements AnimalMapView {
 				}
 			}
 		} else
-			System.out.println("Specified location is out of map.");
+			throw new IllegalArgumentException("Specified location is out of map.");
 	}
 
 	void register_animal(Animal a) {
 		a.init(this);
-		int col = (int) a._pos.getX() / this.get_region_width();
-		int row = (int) a._pos.getY() / this.get_region_height();
-
-		if (col >= 0 && col < _cols && row >= 0 && row < _rows) {
-			Region reg = _regions[row][col];
-			reg.add_animal(a);
-			this._animal_region.put(a, reg);
-		}
+		Region reg = get_region(a);
+		reg.add_animal(a);
+		this._animal_region.put(a, reg);
+		
 	}
 
 	void unregister_animal(Animal a) {
-		int col = (int) a._pos.getX() / this.get_region_width();
-		int row = (int) a._pos.getY() / this.get_region_height();
-
-		if (col >= 0 && col < _cols && row >= 0 && row < _rows) {
-			Region region = _regions[row][col];
-			region.remove_animal(a);
-			_animal_region.remove(a);
-		}
+		Region reg = get_region(a);
+		reg.remove_animal(a);
+		_animal_region.remove(a);
+		
 	}
 
 	void update_animal_region(Animal a) {
-		if (_animal_region.containsKey(a)) {
-			Region reg_anim = _animal_region.get(a);
-			_animal_region.remove(a);
-			reg_anim.remove_animal(a);
-		}
+		Region new_region = get_region(a);
+		Region current_reg = _animal_region.get(a);
+		
+		if (current_reg != new_region) 
+		{
+            if (current_reg != null) 
+            	current_reg.remove_animal(a);
+            
+            new_region.add_animal(a);
+            _animal_region.put(a, new_region);
+        }
+		else 
+			throw new IllegalArgumentException("Animal's new position is out of map bounds.");
 	}
 
 	public double get_food(Animal a, double dt) {
-		int col = (int) a.get_position().getX() / _regionWidth;
-		int row = (int) a.get_position().getY() / _regionHeight;
-
-		if (row >= 0 && row < _rows && col >= 0 && col < _cols) {
-			Region region = _regions[row][col];
-			return region.get_food(a, dt);
-		} else {
-			System.err.println("Animal's position is out of the valid region range.");
-			return 0.0;
-		}
+		double food = 0.0;
+		
+		Region reg = get_region(a);
+		food = reg.get_food(a, dt);
+	
+		return food;
 	}
 
 	void update_all_regions(double dt) {
@@ -113,14 +124,39 @@ public class RegionManager implements AnimalMapView {
 	public List<Animal> get_animals_in_range(Animal a, Predicate<Animal> filter) {
 		List<Animal> animalsInRange = _animal_region.keySet().stream()
 				.filter(animal -> animal.get_position().distanceTo(a.get_position()) <= a.get_sight_range())
-				.filter(filter).collect(Collectors.toList());
+				.filter(filter)
+				.collect(Collectors.toList());
 
 		return animalsInRange;
 	}
 	
-	public Iterator<RegionData> iterator() {
-		// TODO Auto-generated method stub
-		return null;
+	public Iterator<MapInfo.RegionData> iterator() {
+		return new Iterator<MapInfo.RegionData>()
+		{
+			private int currentRow = 0;
+			private int currentCol = 0;
+			
+			public boolean hasNext(){
+				return currentRow < _rows && currentCol < _cols;
+			}
+			
+			public MapInfo.RegionData next()
+			{
+				if(!hasNext())
+					throw new NoSuchElementException();
+				
+				RegionInfo regInfo = _regions[currentRow][currentCol];
+				MapInfo.RegionData regData = new MapInfo.RegionData(currentRow, currentCol, regInfo);
+				
+				currentCol++;
+	            if (currentCol == _cols) {
+	                currentCol = 0;
+	                currentRow++;
+	            }
+	            return regData;
+			}
+			
+		};
 	}
 
 	public JSONObject as_JSON() {

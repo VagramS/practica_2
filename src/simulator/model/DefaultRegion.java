@@ -34,6 +34,6 @@ public class DefaultRegion extends Region {
 	
 	public String toString()
 	{
-		return "Default region";
+		return "default";
 	}
 }

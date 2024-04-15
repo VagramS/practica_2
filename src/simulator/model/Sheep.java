@@ -57,11 +57,8 @@ public class Sheep extends Animal {
 	}
 
 	private void handleNormalState(double dt) {
-		if (_pos.distanceTo(_dest) < DIST_DEST) {
-			double x = Utils._rand.nextDouble(0, _region_mngr.get_width());
-			double y = Utils._rand.nextDouble(0, _region_mngr.get_height());
-			_dest = new Vector2D(x, y);
-		}
+		if (_pos.distanceTo(_dest) < DIST_DEST) 
+			_dest = generateRandomPosition();
 
 		move(_speed * dt * Math.exp((_energy - MOVE_PARAM2) * MOVE_PARAM3));
 
