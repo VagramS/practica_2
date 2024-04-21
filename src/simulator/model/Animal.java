@@ -70,23 +70,23 @@ public abstract class Animal implements Entity, AnimalInfo {
 	}
 
 	public Vector2D generateRandomPosition() {
-        double x = Utils._rand.nextDouble(0, _region_mngr.get_width() - 1);
-        double y = Utils._rand.nextDouble(0, _region_mngr.get_height() - 1);
-        return new Vector2D(x, y);
-    }
-	
+		double x = Utils._rand.nextDouble(0, _region_mngr.get_width() - 1);
+		double y = Utils._rand.nextDouble(0, _region_mngr.get_height() - 1);
+		return new Vector2D(x, y);
+	}
+
 	void init(AnimalMapView reg_mngr) {
 		this._region_mngr = reg_mngr;
 
 		if (_pos == null) {
-			 _pos = generateRandomPosition();
+			_pos = generateRandomPosition();
 		} else {
 			double x = Utils.constrain_value_in_range(_pos.getX(), 0, _region_mngr.get_width() - 1);
 			double y = Utils.constrain_value_in_range(_pos.getY(), 0, _region_mngr.get_height() - 1);
 			_pos = new Vector2D(x, y);
 		}
 
-		 _dest = generateRandomPosition();
+		_dest = generateRandomPosition();
 	}
 
 	Animal deliver_baby() {

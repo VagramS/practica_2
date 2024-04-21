@@ -31,9 +31,8 @@ public class DefaultRegion extends Region {
 
 	public void update(double dt) {
 	}
-	
-	public String toString()
-	{
+
+	public String toString() {
 		return "default";
 	}
 }

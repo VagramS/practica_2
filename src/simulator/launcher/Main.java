@@ -48,10 +48,12 @@ public class Main {
 			_desc = modeDesc;
 		}
 
+		@SuppressWarnings("unused")
 		public String get_tag() {
 			return this._tag;
 		}
 
+		@SuppressWarnings("unused")
 		public String get_desc() {
 			return this._desc;
 		}
@@ -122,21 +124,23 @@ public class Main {
 
 		// mode
 		cmdLineOptions
-				.addOption(Option.builder("m").longOpt("mode").hasArg().desc("Execution Mode. Possible values: 'batch' (Batch\n"
-						+ "mode), 'gui' (Graphical User Interface mode).\n"
-						+ "Default value: 'gui'.").build());
-		
+				.addOption(
+						Option.builder("m").longOpt("mode").hasArg()
+								.desc("Execution Mode. Possible values: 'batch' (Batch\n"
+										+ "mode), 'gui' (Graphical User Interface mode).\n" + "Default value: 'gui'.")
+								.build());
+
 		// input file
-		cmdLineOptions
-				.addOption(Option.builder("i").longOpt("input").hasArg().desc("A configuration file (optional in GUI mode)").build());
+		cmdLineOptions.addOption(Option.builder("i").longOpt("input").hasArg()
+				.desc("A configuration file (optional in GUI mode)").build());
 
 		// output file
-		cmdLineOptions.addOption(
-				Option.builder("o").longOpt("output").hasArg().desc("A file where output is written (only for BATCH mode).").build());
+		cmdLineOptions.addOption(Option.builder("o").longOpt("output").hasArg()
+				.desc("A file where output is written (only for BATCH mode).").build());
 
 		// simple viewer
 		cmdLineOptions.addOption(
-			Option.builder("sv").longOpt("simple-viewer").desc("Show the viewer window in BATCH mode.").build());
+				Option.builder("sv").longOpt("simple-viewer").desc("Show the viewer window in BATCH mode.").build());
 
 		// steps
 		cmdLineOptions.addOption(Option.builder("t").longOpt("time").hasArg()
@@ -154,20 +158,19 @@ public class Main {
 			System.exit(0);
 		}
 	}
-	
+
 	private static void parse_mode_option(CommandLine line) throws ParseException {
 		if (line.hasOption("m")) {
 			String mode = line.getOptionValue("m");
-	        if("BATCH".equalsIgnoreCase(mode))
-	            _mode = ExecMode.BATCH;
-	        else if("GUI".equalsIgnoreCase(mode))
-	            _mode = ExecMode.GUI;
-	        else
-	            throw new IllegalArgumentException("This mode doesn't exist");
-		}
-		else
+			if ("BATCH".equalsIgnoreCase(mode))
+				_mode = ExecMode.BATCH;
+			else if ("GUI".equalsIgnoreCase(mode))
+				_mode = ExecMode.GUI;
+			else
+				throw new IllegalArgumentException("This mode doesn't exist");
+		} else
 			throw new ParseException("No mode selected");
-			
+
 	}
 
 	private static void parse_in_file_option(CommandLine line) throws ParseException {
@@ -246,12 +249,12 @@ public class Main {
 		Controller control = new Controller(_sim);
 		control.load_data(simulationData);
 
-		if(_time == null)
+		if (_time == null)
 			_time = _default_time;
-		
-		if(_delta_time == null)
+
+		if (_delta_time == null)
 			_delta_time = _default_delta_time;
-		
+
 		control.run(_time, _delta_time, _simpleViewer, print_stream);
 
 		print_stream.close();
@@ -261,31 +264,32 @@ public class Main {
 		// -i opcional
 		// -t, -o, sv ignora
 		// -dt necesario
-		
-		  Controller ctrl;
 
-		    if (_in_file != null) {
-		        // Input file has been provided; load it
-		        InputStream is = new FileInputStream(new File(_in_file));
-		        JSONObject simulationData = load_JSON_file(is);
-		        is.close(); // Close the InputStream after use
+		Controller ctrl;
 
-		        int simulationWidth = simulationData.getInt("width");
-		        int simulationHeight = simulationData.getInt("height");
-		        int simulationCols = simulationData.getInt("cols");
-		        int simulationRows = simulationData.getInt("rows");
+		if (_in_file != null) {
+			// Input file has been provided; load it
+			InputStream is = new FileInputStream(new File(_in_file));
+			JSONObject simulationData = load_JSON_file(is);
+			is.close(); // Close the InputStream after use
 
-		        Simulator sim = new Simulator(simulationCols, simulationRows, simulationWidth, simulationHeight, _animals_factory, _regions_factory);
-		        ctrl = new Controller(sim);
-		        ctrl.load_data(simulationData); // Load the data into the simulator
-		    } else {
-		        // No input file provided; use default values
-		        Simulator sim = new Simulator(20, 15, 800, 600, _animals_factory, _regions_factory);
-		        ctrl = new Controller(sim);
-		    }
+			int simulationWidth = simulationData.getInt("width");
+			int simulationHeight = simulationData.getInt("height");
+			int simulationCols = simulationData.getInt("cols");
+			int simulationRows = simulationData.getInt("rows");
 
-		    // Create the GUI in the event dispatch thread
-		    SwingUtilities.invokeAndWait(() -> new MainWindow(ctrl));
+			Simulator sim = new Simulator(simulationCols, simulationRows, simulationWidth, simulationHeight,
+					_animals_factory, _regions_factory);
+			ctrl = new Controller(sim);
+			ctrl.load_data(simulationData); // Load the data into the simulator
+		} else {
+			// No input file provided; use default values
+			Simulator sim = new Simulator(20, 15, 800, 600, _animals_factory, _regions_factory);
+			ctrl = new Controller(sim);
+		}
+
+		// Create the GUI in the event dispatch thread
+		SwingUtilities.invokeAndWait(() -> new MainWindow(ctrl));
 	}
 
 	private static void start(String[] args) throws Exception {

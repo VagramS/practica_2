@@ -7,7 +7,7 @@ import org.json.JSONObject;
 
 import simulator.factories.Factory;
 
-public class Simulator implements JSONable,  Observable<EcoSysObserver> {
+public class Simulator implements JSONable, Observable<EcoSysObserver> {
 	protected Factory<Animal> _animals_factory;
 	protected Factory<Region> _regions_factory;
 	protected RegionManager _region_mngr;
@@ -15,7 +15,8 @@ public class Simulator implements JSONable,  Observable<EcoSysObserver> {
 	protected List<EcoSysObserver> observers;
 	protected double time;
 
-	public Simulator(int cols, int rows, int width, int height, Factory<Animal> animals_factory, Factory<Region> regions_factory) {
+	public Simulator(int cols, int rows, int width, int height, Factory<Animal> animals_factory,
+			Factory<Region> regions_factory) {
 		this._animals_factory = animals_factory;
 		this._regions_factory = regions_factory;
 		this._region_mngr = new RegionManager(cols, rows, width, height);
@@ -31,10 +32,10 @@ public class Simulator implements JSONable,  Observable<EcoSysObserver> {
 	public void set_region(int row, int col, JSONObject r_json) {
 		Region R = _regions_factory.create_instance(r_json);
 		set_region(row, col, R);
-		
+
 		for (int i = 0; i < observers.size(); i++) {
-	        observers.get(i).onRegionSet(row, col, this.get_map_info(), R);
-	    }
+			observers.get(i).onRegionSet(row, col, this.get_map_info(), R);
+		}
 	}
 
 	private void add_animal(Animal a) {
@@ -43,12 +44,12 @@ public class Simulator implements JSONable,  Observable<EcoSysObserver> {
 	}
 
 	public void add_animal(JSONObject a_json) {
-	    Animal A = _animals_factory.create_instance(a_json);
-	    add_animal(A);
-	    AnimalInfo animalInfo = A; // This works if Animal implements AnimalInfo
-	    for (EcoSysObserver o : observers) {
-	        o.onAnimalAdded(this.time, this.get_map_info(), this.get_animals(), animalInfo);
-	    }
+		Animal A = _animals_factory.create_instance(a_json);
+		add_animal(A);
+		AnimalInfo animalInfo = A;
+		for (EcoSysObserver o : observers) {
+			o.onAnimalAdded(this.time, this.get_map_info(), this.get_animals(), animalInfo);
+		}
 	}
 
 	public MapInfo get_map_info() {
@@ -62,7 +63,7 @@ public class Simulator implements JSONable,  Observable<EcoSysObserver> {
 	public double get_time() {
 		return this.time;
 	}
-	
+
 	public void advance(double dt) {
 		this.time += dt;
 
@@ -90,21 +91,20 @@ public class Simulator implements JSONable,  Observable<EcoSysObserver> {
 		}
 		for (Animal baby : newBabies)
 			add_animal(baby);
-		
-		 for (int i = 0; i < observers.size(); i++)
-			 observers.get(i).onAvanced(this.time, this.get_map_info(), this.get_animals(), dt);
-		 
+
+		for (int i = 0; i < observers.size(); i++)
+			observers.get(i).onAvanced(this.time, this.get_map_info(), this.get_animals(), dt);
+
 	}
-	
-	public void reset(int cols, int rows, int width, int height)
-	{
+
+	public void reset(int cols, int rows, int width, int height) {
 		animals = new ArrayList<>();
 		_region_mngr = new RegionManager(cols, rows, width, height);
 		time = 0.0;
-		
-		for(int i = 0; i < observers.size(); i++)
-			observers.get(i).onReset(this.time,  this.get_map_info(), this.get_animals());
-		
+
+		for (int i = 0; i < observers.size(); i++)
+			observers.get(i).onReset(this.time, this.get_map_info(), this.get_animals());
+
 	}
 
 	public JSONObject as_JSON() {
@@ -120,17 +120,15 @@ public class Simulator implements JSONable,  Observable<EcoSysObserver> {
 	}
 
 	public void addObserver(EcoSysObserver o) {
-		if(!observers.contains(o))
-		{
+		if (!observers.contains(o)) {
 			observers.add(o);
-	        o.onRegister(this.time, this.get_map_info(), this.get_animals());
+			o.onRegister(this.time, this.get_map_info(), this.get_animals());
 		}
 	}
 
 	public void removeObserver(EcoSysObserver o) {
-		if(observers.contains(o))
+		if (observers.contains(o))
 			observers.remove(o);
 	}
-	
-	
+
 }

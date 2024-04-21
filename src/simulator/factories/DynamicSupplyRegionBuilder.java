@@ -23,19 +23,18 @@ public class DynamicSupplyRegionBuilder extends Builder<Region> {
 
 		return new DynamicSupplyRegion(food, factor);
 	}
-	
-	public JSONObject get_info()
-	{
+
+	public JSONObject get_info() {
 		JSONObject obj = new JSONObject();
 		JSONObject data = new JSONObject();
-		
+
 		obj.put("type", "dynamic");
 		obj.put("desc", "Dynamic food supply");
-		
+
 		data.put("factor", "food increase factor (optional, default 2.0)");
 		data.put("food", "initial amount of food (optional, default 100.0)");
 		obj.put("data", data);
-		
+
 		return obj;
 	}
 }

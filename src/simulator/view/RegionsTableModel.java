@@ -3,101 +3,108 @@ package simulator.view;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import simulator.control.Controller;
-import simulator.model.AnimalInfo;
-import simulator.model.Diet;
-import simulator.model.EcoSysObserver;
-import simulator.model.MapInfo;
-import simulator.model.RegionInfo;
+import simulator.model.*;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 @SuppressWarnings("serial")
 class RegionsTableModel extends AbstractTableModel implements EcoSysObserver {
-    private Controller _ctrl;
-    private List<RegionInfo> regions;
-    private List<String> columnNames;
+	private Controller _ctrl;
+	private List<MapInfo.RegionData> regionDataList;
+	private List<String> columnNames;
 
-    RegionsTableModel(Controller ctrl) {
-        this._ctrl = ctrl;
-        this.regions = new ArrayList<>();
-        this.columnNames = new ArrayList<>();
-        this.columnNames.add("Row");
-        this.columnNames.add("Col");
-        this.columnNames.add("Desc.");
-        
-        for (Diet diet : Diet.values()) 
-            this.columnNames.add(diet.toString());
-        
-        ctrl.addObserver(this);
-    }
+	RegionsTableModel(Controller ctrl) {
+		this._ctrl = ctrl;
+		this.regionDataList = new ArrayList<>();
+		this.columnNames = new ArrayList<>();
+		this.columnNames.add("Row");
+		this.columnNames.add("Col");
+		this.columnNames.add("Desc.");
 
-    public int getRowCount() {
-        return regions.size();
-    }
+		for (Diet diet : Diet.values()) {
+			this.columnNames.add(diet.toString());
+		}
 
-    public int getColumnCount() {
-        return columnNames.size();
-    }
+		ctrl.addObserver(this);
+		initializeRegionData();
+	}
 
-    public String getColumnName(int index) {
-        return columnNames.get(index);
-    }
-    
-    public Object getValueAt(int rowIndex, int columnIndex) {
-		return columnIndex;
-//        if (rowIndex < 0 || rowIndex >= regions.size()) {
-//            throw new IndexOutOfBoundsException("Index " + rowIndex + " is out of bounds.");
-//        }
-//
-//        RegionInfo region = regions.get(rowIndex);
-//        switch (columnIndex) {
-//            case 0:
-//                return region.getRow();
-//            case 1:
-//                return region.getCol();
-//            case 2:
-//                return region.toString();
-//            default:
-//                return getAnimalCountByDiet(region, Diet.values()[columnIndex - 3]);
-//        }
-    }
+	private void initializeRegionData() {
+		regionDataList.clear();
+		Iterator<MapInfo.RegionData> regionIterator = _ctrl.getSimulator().get_map_info().iterator();
+		while (regionIterator.hasNext()) {
+			regionDataList.add(regionIterator.next());
+		}
+	}
 
-    private int getAnimalCountByDiet(RegionInfo region, Diet diet) {
-        int count = 0;
-        for (AnimalInfo animal : region.getAnimalsInfo()) {
-            if (animal.get_diet() == diet) 
-                count++;
-        }
-        return count;
-    }
+	public int getRowCount() {
+		return regionDataList.size();
+	}
 
-    public void refreshData(List<RegionInfo> newRegions) {
-    	 SwingUtilities.invokeLater(() -> {
-             regions = new ArrayList<>(newRegions); // Use the new list, not the model's list
-             fireTableDataChanged(); // Notify the table that data has changed
-         });
-    }
+	public int getColumnCount() {
+		return columnNames.size();
+	}
 
+	public String getColumnName(int index) {
+		return columnNames.get(index);
+	}
+
+	public Object getValueAt(int rowIndex, int columnIndex) {
+		if (rowIndex < 0 || rowIndex >= getRowCount()) {
+			throw new IndexOutOfBoundsException("Row index out of bounds: " + rowIndex);
+		}
+		if (columnIndex < 0 || columnIndex >= getColumnCount()) {
+			throw new IndexOutOfBoundsException("Column index out of bounds: " + columnIndex);
+		}
+
+		MapInfo.RegionData regionData = regionDataList.get(rowIndex);
+		switch (columnIndex) {
+		case 0:
+			return regionData.row();
+		case 1:
+			return regionData.col();
+		case 2:
+			return regionData.r().toString();
+		default:
+			return getAnimalCountByDiet(regionData.r(), Diet.values()[columnIndex - 3]);
+		}
+	}
+
+	private int getAnimalCountByDiet(RegionInfo region, Diet diet) {
+		return (int) region.getAnimalsInfo().stream().filter(a -> a.get_diet() == diet).count();
+	}
+
+	public void refreshData() {
+		SwingUtilities.invokeLater(() -> {
+			initializeRegionData();
+			fireTableDataChanged();
+		});
+	}
+
+	@Override
 	public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) {
-		//refreshData(map.getRegions());
+		refreshData();
 	}
 
+	@Override
 	public void onReset(double time, MapInfo map, List<AnimalInfo> animals) {
-		//refreshData(map.getRegions());
+		refreshData();
 	}
 
+	@Override
 	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {
-		//refreshData(map.getRegions());
+		refreshData();
 	}
 
+	@Override
 	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) {
-		//refreshData(map.getRegions());
+		refreshData();
 	}
 
+	@Override
 	public void onAvanced(double time, MapInfo map, List<AnimalInfo> animals, double dt) {
-		//refreshData(map.getRegions());
+		refreshData();
 	}
 }

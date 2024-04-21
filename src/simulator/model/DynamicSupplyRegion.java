@@ -39,10 +39,8 @@ public class DynamicSupplyRegion extends Region {
 
 		return food;
 	}
-	
-	public String toString()
-	{
+
+	public String toString() {
 		return "dynamic";
 	}
-
 }

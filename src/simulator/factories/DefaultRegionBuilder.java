@@ -13,14 +13,14 @@ public class DefaultRegionBuilder extends Builder<Region> {
 	protected Region create_instance(JSONObject data) {
 		return new DefaultRegion();
 	}
-	
-	 public JSONObject get_info() {
-	    JSONObject obj = new JSONObject();
-	    
-	    obj.put("type", "default");
-	    obj.put("desc", "Infinite food supply");
-	    obj.put("data", new JSONObject());
-	    return obj;
-	 }
+
+	public JSONObject get_info() {
+		JSONObject obj = new JSONObject();
+
+		obj.put("type", "default");
+		obj.put("desc", "Infinite food supply");
+		obj.put("data", new JSONObject());
+		return obj;
+	}
 
 }

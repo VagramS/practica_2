@@ -52,9 +52,9 @@ public class Wolf extends Animal {
 	}
 
 	private void handleNormalState(double dt) {
-		if (_pos.distanceTo(_dest) < DIST_DEST) 
+		if (_pos.distanceTo(_dest) < DIST_DEST)
 			_dest = generateRandomPosition();
-		
+
 		move(_speed * dt * Math.exp((_energy - MOVE_PARAM2) * MOVE_PARAM3));
 
 		_age += dt;
