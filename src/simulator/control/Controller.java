@@ -6,8 +6,6 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -31,11 +29,19 @@ public class Controller {
 			load_data(jsonObj);
 		} catch (Exception e) {
 			e.printStackTrace();
-			// Handle exceptions or errors here
 		}
 	}
 
-	public void load_data(JSONObject data) {
+	public void load_data(JSONObject data) 
+	{
+		if (data.has("width") && data.has("height") && data.has("cols") && data.has("rows")) {
+            int width = data.getInt("width");
+            int height = data.getInt("height");
+            int cols = data.getInt("cols");
+            int rows = data.getInt("rows");
+            _sim.reset(cols, rows, width, height);
+        }
+		
 		if (data.has("regions")) {
 			JSONArray regions = data.getJSONArray("regions");
 			set_regions(regions);

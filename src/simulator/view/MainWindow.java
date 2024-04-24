@@ -52,7 +52,6 @@ public class MainWindow extends JFrame {
 				TitledBorder.TOP, new Font("Arial", Font.BOLD, 14), Color.black);
 		speciesPanel.setBorder(speciesBorder);
 
-		// contentPanel.add(Box.createVerticalStrut(10));
 
 		// Regions Table
 		JPanel regionsPanel = new JPanel(new BorderLayout(5, 5));
@@ -81,5 +80,4 @@ public class MainWindow extends JFrame {
 		setLocationRelativeTo(null); // Always opens the main window at the center of display
 		setVisible(true);
 	}
-
 }

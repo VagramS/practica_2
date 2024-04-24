@@ -69,7 +69,7 @@ public class Main {
 	private static String _out_file = null;
 	private static Double _time = null;
 	public static Double _delta_time = null;
-	private static String _in_file = null;
+	public static String _in_file = null;
 	private static boolean _simpleViewer = false;
 	private static ExecMode _mode = null;
 
@@ -262,34 +262,38 @@ public class Main {
 
 	private static void start_GUI_mode() throws Exception {
 		// -i opcional
-		// -t, -o, sv ignora
+		// -t, -o, -sv se ignora
 		// -dt necesario
-
 		Controller ctrl;
+		Simulator sim;
 
 		if (_in_file != null) {
-			// Input file has been provided; load it
+			// If input file has been provided; load it
 			InputStream is = new FileInputStream(new File(_in_file));
 			JSONObject simulationData = load_JSON_file(is);
-			is.close(); // Close the InputStream after use
+			is.close();
 
 			int simulationWidth = simulationData.getInt("width");
 			int simulationHeight = simulationData.getInt("height");
 			int simulationCols = simulationData.getInt("cols");
 			int simulationRows = simulationData.getInt("rows");
 
-			Simulator sim = new Simulator(simulationCols, simulationRows, simulationWidth, simulationHeight,
+			sim = new Simulator(simulationCols, simulationRows, simulationWidth, simulationHeight,
 					_animals_factory, _regions_factory);
 			ctrl = new Controller(sim);
-			ctrl.load_data(simulationData); // Load the data into the simulator
-		} else {
+			ctrl.load_data(simulationData); 
+		} 
+		else {
 			// No input file provided; use default values
-			Simulator sim = new Simulator(20, 15, 800, 600, _animals_factory, _regions_factory);
+			sim = new Simulator(20, 15, 800, 600, _animals_factory, _regions_factory);
 			ctrl = new Controller(sim);
 		}
 
 		// Create the GUI in the event dispatch thread
-		SwingUtilities.invokeAndWait(() -> new MainWindow(ctrl));
+		SwingUtilities.invokeAndWait(() -> { 
+			new MainWindow(ctrl);
+		});
+		
 	}
 
 	private static void start(String[] args) throws Exception {

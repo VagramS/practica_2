@@ -51,7 +51,8 @@ class ControlPanel extends JPanel {
 		_openButton.setIcon(new ImageIcon("recources/icons/open.png"));
 		_openButton.addActionListener((e) -> {
 			int returnVal = _fc.showOpenDialog(ViewUtils.getWindow(this));
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
+			if (returnVal == JFileChooser.APPROVE_OPTION) 
+			{
 				File file = _fc.getSelectedFile();
 				_ctrl.getSimulator().reset(_ctrl.getSimulator().get_map_info().get_cols(),
 						_ctrl.getSimulator().get_map_info().get_rows(), _ctrl.getSimulator().get_map_info().get_width(),
@@ -139,7 +140,7 @@ class ControlPanel extends JPanel {
 		// Run button event
 		_runButton.addActionListener(e -> {
 			_stopped = false;
-			Deacticate();
+			Deactivate();
 			int steps_value = (Integer) stepsInput.getValue();
 			double deltaTime_value = Double.parseDouble(delta_timeInput.getText());
 			run_sim(steps_value, deltaTime_value);
@@ -186,7 +187,7 @@ class ControlPanel extends JPanel {
 		_viewerButton.setEnabled(true);
 	}
 
-	private void Deacticate() {
+	private void Deactivate() {
 		_quitButton.setEnabled(false);
 		_openButton.setEnabled(false);
 		_regionsButton.setEnabled(false);

@@ -105,7 +105,16 @@ public class MapViewer extends AbstractMapViewer {
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
-
+		
+		 Dimension size = getSize();
+		 _width = size.width;
+		 _height = size.height;
+		 
+		 if (_cols > 0 && _rows > 0) {
+		    _rwidth = _width / _cols;
+		    _rheight = _height / _rows;
+		 }
+		 
 		Graphics2D gr = (Graphics2D) g;
 		gr.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		gr.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -154,18 +163,11 @@ public class MapViewer extends AbstractMapViewer {
 
 			// SpeciesInfo esp_info = _kindsInfo.get(a.get_genetic_code());
 
-			// TODO Si esp_info es null, añade una entrada correspondiente al mapa. Para el
-			// color usa ViewUtils.get_color(a.get_genetic_code())
 			SpeciesInfo esp_info = _kindsInfo.computeIfAbsent(a.get_genetic_code(),
 					k -> new SpeciesInfo(ViewUtils.get_color(k)));
 
-			// TODO Incrementar el contador de la especie (es decir el contador dentro de
-			// tag_info)
 			esp_info._count++;
 
-			// TODO Dibijar el animal en la posicion correspondiente, usando el color
-			// tag_info._color. Su tamaño tiene que ser relativo a su edad, por ejemplo
-			// edad/2+2. Se puede dibujar usando fillRoundRect, fillRect o fillOval.
 			int size = (int) Math.round(a.get_age()) / 2 + 2;
 			g.setColor(esp_info._color);
 			g.fillOval((int) a.get_position().getX(), (int) a.get_position().getY(), size, size);
@@ -174,18 +176,18 @@ public class MapViewer extends AbstractMapViewer {
 
 		if (_currState != null) {
 			g.setColor(new Color(38, 255, 41));
-			drawStringWithRect(g, 15, 505, "State: " + _currState);
+			drawStringWithRect(g, 15, _height - 95, "State: " + _currState);
 		}
 
 		g.setColor(new Color(255, 0, 144));
-		drawStringWithRect(g, 15, 580, "Time: " + String.format("%.3f", time));
+		drawStringWithRect(g, 15, _height - 20, "Time: " + String.format("%.3f", time));
 
-		int yPos = 530;
+		int yPos = _height - 45;
 		for (Entry<String, SpeciesInfo> e : _kindsInfo.entrySet()) {
 			g.setColor(ViewUtils.get_color(e.getKey())); // Wolf and Sheep label color depending on its color
 			drawStringWithRect(g, 15, yPos, e.getKey() + ": " + e.getValue()._count);
 			e.getValue()._count = 0;
-			yPos += 25;
+			yPos -= 25;
 		}
 	}
 
