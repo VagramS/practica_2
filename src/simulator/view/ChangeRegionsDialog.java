@@ -162,8 +162,7 @@ class ChangeRegionsDialog extends JDialog implements EcoSysObserver {
 		spec.put("data", regionData);
 		region.put("spec", spec);
 
-		// Wrap the single region object in an array
-		JSONArray regions = new JSONArray();
+		JSONArray regions = new JSONArray(); // Wrap the single region object in an array
 		regions.put(region);
 
 		try {
@@ -223,12 +222,9 @@ class ChangeRegionsDialog extends JDialog implements EcoSysObserver {
 		updateComboBoxes(map);
 	}
 
-	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {
-	}
+	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {}
 
-	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) {
-	}
+	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) {}
 
-	public void onAvanced(double time, MapInfo map, List<AnimalInfo> animals, double dt) {
-	}
+	public void onAvanced(double time, MapInfo map, List<AnimalInfo> animals, double dt) {}
 }
