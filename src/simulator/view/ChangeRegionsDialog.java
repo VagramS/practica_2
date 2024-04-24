@@ -5,7 +5,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import simulator.control.Controller;
@@ -24,7 +23,7 @@ class ChangeRegionsDialog extends JDialog implements EcoSysObserver {
 	private JButton _okButton, _cancelButton;
 
 	ChangeRegionsDialog(Controller ctrl) {
-		super((Frame)null, true);
+		super((Frame) null, true);
 		this._ctrl = ctrl;
 		this._ctrl.addObserver(this);
 		initGUI();
@@ -47,8 +46,9 @@ class ChangeRegionsDialog extends JDialog implements EcoSysObserver {
 				new String[] { "Key", "Value", "Description" }) {
 			public boolean isCellEditable(int row, int column) {
 				return column == 1;
-			}};
-			
+			}
+		};
+
 		_dataTable.setModel(model);
 		mainPanel.add(new JScrollPane(_dataTable));
 
@@ -62,7 +62,7 @@ class ChangeRegionsDialog extends JDialog implements EcoSysObserver {
 		JLabel region_text = new JLabel("Region type: ");
 		_regionsComboBox = new JComboBox<>();
 
-		for(int i = 0; i < Main._regions_factory.get_info().size(); i++)
+		for (int i = 0; i < Main._regions_factory.get_info().size(); i++)
 			_regionsComboBox.addItem(Main._regions_factory.get_info().get(i).getString("type"));
 
 		_regionsComboBox.addActionListener(
@@ -130,68 +130,66 @@ class ChangeRegionsDialog extends JDialog implements EcoSysObserver {
 	}
 
 	private void applyChanges() {
-        int fromRow = (Integer) _fromRowComboBox.getSelectedItem();
-        int toRow = (Integer) _toRowComboBox.getSelectedItem();
-        int fromCol = (Integer) _fromColComboBox.getSelectedItem();
-        int toCol = (Integer) _toColComboBox.getSelectedItem();
-        
-        for (int row = fromRow; row <= toRow; row++) 
-            for (int col = fromCol; col <= toCol; col++) 
-                applyRegionSettings(row, col);
+		int fromRow = (Integer) _fromRowComboBox.getSelectedItem();
+		int toRow = (Integer) _toRowComboBox.getSelectedItem();
+		int fromCol = (Integer) _fromColComboBox.getSelectedItem();
+		int toCol = (Integer) _toColComboBox.getSelectedItem();
+
+		for (int row = fromRow; row <= toRow; row++)
+			for (int col = fromCol; col <= toCol; col++)
+				applyRegionSettings(row, col);
 
 		setVisible(false);
 	}
 
 	private void applyRegionSettings(int row, int col) {
-	    JSONObject regionData = new JSONObject();
-	    for (int i = 0; i < _dataTable.getRowCount(); i++) {
-	        String key = _dataTable.getValueAt(i, 0).toString();
-	        String value = _dataTable.getValueAt(i, 1).toString();
-	        if (!value.isEmpty()) {
-	            regionData.put(key, value);
-	        }
-	    }
+		JSONObject regionData = new JSONObject();
+		for (int i = 0; i < _dataTable.getRowCount(); i++) {
+			String key = _dataTable.getValueAt(i, 0).toString();
+			String value = _dataTable.getValueAt(i, 1).toString();
+			if (!value.isEmpty()) {
+				regionData.put(key, value);
+			}
+		}
 
-	    String regionType = _regionsComboBox.getSelectedItem().toString();
+		String regionType = _regionsComboBox.getSelectedItem().toString();
 
-	    JSONObject region = new JSONObject();
-	    region.put("row", new JSONArray(new int[]{row, row}));
-	    region.put("col", new JSONArray(new int[]{col, col}));
-	    JSONObject spec = new JSONObject();
-	    spec.put("type", regionType);
-	    spec.put("data", regionData);
-	    region.put("spec", spec);
+		JSONObject region = new JSONObject();
+		region.put("row", new JSONArray(new int[] { row, row }));
+		region.put("col", new JSONArray(new int[] { col, col }));
+		JSONObject spec = new JSONObject();
+		spec.put("type", regionType);
+		spec.put("data", regionData);
+		region.put("spec", spec);
 
-	    // Wrap the single region object in an array
-	    JSONArray regions = new JSONArray();
-	    regions.put(region);
+		// Wrap the single region object in an array
+		JSONArray regions = new JSONArray();
+		regions.put(region);
 
-	    try {
-	        _ctrl.set_regions(regions);
-	    } catch (Exception e) {
-	        ViewUtils.showErrorMsg(e.getMessage());
-	    }
+		try {
+			_ctrl.set_regions(regions);
+		} catch (Exception e) {
+			ViewUtils.showErrorMsg(e.getMessage());
+		}
 	}
 
 	private void updateTableBasedOnRegionType(String regionType, DefaultTableModel model) {
 		model.setRowCount(0); // Clear existing data
-	    JSONObject info = null;
-	    
-	    for(int i = 0; i < Main._regions_factory.get_info().size(); i++)
-	    	info = Main._regions_factory.get_info().get(i);
-	        
-	    if (info != null) 
-	    {
-	        JSONObject data = info.getJSONObject("data");
-	        for (String key : data.keySet()) {
-	            String description = data.getString(key);
-	            model.addRow(new Object[] { key, "", description });
-	        }
-	    }
+		JSONObject info = null;
+
+		for (int i = 0; i < Main._regions_factory.get_info().size(); i++)
+			info = Main._regions_factory.get_info().get(i);
+
+		if (info != null) {
+			JSONObject data = info.getJSONObject("data");
+			for (String key : data.keySet()) {
+				String description = data.getString(key);
+				model.addRow(new Object[] { key, "", description });
+			}
+		}
 	}
-	
-	public void open(Frame parent) 
-	{
+
+	public void open(Frame parent) {
 		setLocation(parent.getLocation().x + parent.getWidth() / 2 - getWidth() / 2,
 				parent.getLocation().y + parent.getHeight() / 2 - getHeight() / 2);
 		pack();
@@ -199,8 +197,7 @@ class ChangeRegionsDialog extends JDialog implements EcoSysObserver {
 	}
 
 	private void updateComboBoxes(MapInfo map) {
-		if (_fromRowComboBox != null || _toRowComboBox != null || _fromColComboBox != null || _toColComboBox != null) 
-		{
+		if (_fromRowComboBox != null || _toRowComboBox != null || _fromColComboBox != null || _toColComboBox != null) {
 			_fromRowComboBox.removeAllItems();
 			_toRowComboBox.removeAllItems();
 			_fromColComboBox.removeAllItems();
@@ -215,7 +212,7 @@ class ChangeRegionsDialog extends JDialog implements EcoSysObserver {
 				_fromColComboBox.addItem(i);
 				_toColComboBox.addItem(i);
 			}
-	    }
+		}
 	}
 
 	public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) {
@@ -226,9 +223,12 @@ class ChangeRegionsDialog extends JDialog implements EcoSysObserver {
 		updateComboBoxes(map);
 	}
 
-	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {}
+	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {
+	}
 
-	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) {}
+	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) {
+	}
 
-	public void onAvanced(double time, MapInfo map, List<AnimalInfo> animals, double dt) {}
+	public void onAvanced(double time, MapInfo map, List<AnimalInfo> animals, double dt) {
+	}
 }

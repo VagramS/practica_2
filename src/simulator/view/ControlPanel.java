@@ -51,8 +51,7 @@ class ControlPanel extends JPanel {
 		_openButton.setIcon(new ImageIcon("recources/icons/open.png"));
 		_openButton.addActionListener((e) -> {
 			int returnVal = _fc.showOpenDialog(ViewUtils.getWindow(this));
-			if (returnVal == JFileChooser.APPROVE_OPTION) 
-			{
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = _fc.getSelectedFile();
 				_ctrl.getSimulator().reset(_ctrl.getSimulator().get_map_info().get_cols(),
 						_ctrl.getSimulator().get_map_info().get_rows(), _ctrl.getSimulator().get_map_info().get_width(),
@@ -152,7 +151,7 @@ class ControlPanel extends JPanel {
 		_quitButton = new JButton();
 		_quitButton.setToolTipText("Exit");
 		_quitButton.setIcon(new ImageIcon("recources/icons/exit.png"));
-		_quitButton.addActionListener((e) -> System.exit(0)); // Utils.quit(this)
+		_quitButton.addActionListener((e) -> System.exit(0));
 		_toolaBar.add(_quitButton);
 
 		_changeRegionsDialog = new ChangeRegionsDialog(_ctrl);

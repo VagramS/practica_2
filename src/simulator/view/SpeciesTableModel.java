@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 @SuppressWarnings("serial")
 class SpeciesTableModel extends AbstractTableModel implements EcoSysObserver {
+	@SuppressWarnings("unused")
 	private Controller _ctrl;
 	private List<AnimalInfo> animals;
 	private Map<String, Map<State, Integer>> speciesStateCounts;
@@ -63,6 +64,23 @@ class SpeciesTableModel extends AbstractTableModel implements EcoSysObserver {
 		return counts.getOrDefault(state, 0);
 	}
 
+	private void updateData(List<AnimalInfo> newAnimals) {
+		SwingUtilities.invokeLater(() -> {
+			this.animals = new ArrayList<>(newAnimals);
+			countStates();
+			fireTableDataChanged();
+		});
+	}
+
+	private void countStates() {
+		speciesStateCounts.clear();
+		for (AnimalInfo animal : animals) {
+			speciesStateCounts.putIfAbsent(animal.get_genetic_code(), new HashMap<>());
+			State state = animal.get_state();
+			speciesStateCounts.get(animal.get_genetic_code()).merge(state, 1, Integer::sum);
+		}
+	}
+
 	public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) {
 		updateData(animals);
 	}
@@ -81,22 +99,5 @@ class SpeciesTableModel extends AbstractTableModel implements EcoSysObserver {
 
 	public void onAvanced(double time, MapInfo map, List<AnimalInfo> animals, double dt) {
 		updateData(animals);
-	}
-
-	private void updateData(List<AnimalInfo> newAnimals) {
-		SwingUtilities.invokeLater(() -> {
-			this.animals = new ArrayList<>(newAnimals);
-			countStates();
-			fireTableDataChanged();
-		});
-	}
-
-	private void countStates() {
-		speciesStateCounts.clear();
-		for (AnimalInfo animal : animals) {
-			speciesStateCounts.putIfAbsent(animal.get_genetic_code(), new HashMap<>());
-			State state = animal.get_state();
-			speciesStateCounts.get(animal.get_genetic_code()).merge(state, 1, Integer::sum);
-		}
 	}
 }

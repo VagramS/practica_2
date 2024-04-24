@@ -32,16 +32,15 @@ public class Controller {
 		}
 	}
 
-	public void load_data(JSONObject data) 
-	{
+	public void load_data(JSONObject data) {
 		if (data.has("width") && data.has("height") && data.has("cols") && data.has("rows")) {
-            int width = data.getInt("width");
-            int height = data.getInt("height");
-            int cols = data.getInt("cols");
-            int rows = data.getInt("rows");
-            _sim.reset(cols, rows, width, height);
-        }
-		
+			int width = data.getInt("width");
+			int height = data.getInt("height");
+			int cols = data.getInt("cols");
+			int rows = data.getInt("rows");
+			_sim.reset(cols, rows, width, height);
+		}
+
 		if (data.has("regions")) {
 			JSONArray regions = data.getJSONArray("regions");
 			set_regions(regions);

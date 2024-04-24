@@ -278,22 +278,21 @@ public class Main {
 			int simulationCols = simulationData.getInt("cols");
 			int simulationRows = simulationData.getInt("rows");
 
-			sim = new Simulator(simulationCols, simulationRows, simulationWidth, simulationHeight,
-					_animals_factory, _regions_factory);
+			sim = new Simulator(simulationCols, simulationRows, simulationWidth, simulationHeight, _animals_factory,
+					_regions_factory);
 			ctrl = new Controller(sim);
-			ctrl.load_data(simulationData); 
-		} 
-		else {
+			ctrl.load_data(simulationData);
+		} else {
 			// No input file provided; use default values
 			sim = new Simulator(20, 15, 800, 600, _animals_factory, _regions_factory);
 			ctrl = new Controller(sim);
 		}
 
 		// Create the GUI in the event dispatch thread
-		SwingUtilities.invokeAndWait(() -> { 
+		SwingUtilities.invokeAndWait(() -> {
 			new MainWindow(ctrl);
 		});
-		
+
 	}
 
 	private static void start(String[] args) throws Exception {

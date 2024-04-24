@@ -83,27 +83,22 @@ class RegionsTableModel extends AbstractTableModel implements EcoSysObserver {
 		});
 	}
 
-	@Override
 	public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) {
 		refreshData();
 	}
 
-	@Override
 	public void onReset(double time, MapInfo map, List<AnimalInfo> animals) {
 		refreshData();
 	}
 
-	@Override
 	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {
 		refreshData();
 	}
 
-	@Override
 	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) {
 		refreshData();
 	}
 
-	@Override
 	public void onAvanced(double time, MapInfo map, List<AnimalInfo> animals, double dt) {
 		refreshData();
 	}

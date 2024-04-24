@@ -52,7 +52,6 @@ public class MainWindow extends JFrame {
 				TitledBorder.TOP, new Font("Arial", Font.BOLD, 14), Color.black);
 		speciesPanel.setBorder(speciesBorder);
 
-
 		// Regions Table
 		JPanel regionsPanel = new JPanel(new BorderLayout(5, 5));
 		regionsPanel.setPreferredSize(new Dimension(500, 200));
