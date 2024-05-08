@@ -104,7 +104,6 @@ public class Simulator implements JSONable, Observable<EcoSysObserver> {
 
 		for (int i = 0; i < observers.size(); i++)
 			observers.get(i).onReset(this.time, this.get_map_info(), this.get_animals());
-
 	}
 
 	public JSONObject as_JSON() {

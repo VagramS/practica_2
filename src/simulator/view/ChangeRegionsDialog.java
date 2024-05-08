@@ -96,12 +96,12 @@ class ChangeRegionsDialog extends JDialog implements EcoSysObserver {
 		_toColComboBox.setPreferredSize(new Dimension(45, 25));
 		comboPanel.add(_toColComboBox);
 
-		for (int i = 0; i < _ctrl.getSimulator().get_map_info().get_rows(); i++) {
+		for (int i = 0; i < _dataTable.getRowCount(); i++) {
 			_fromRowComboBox.addItem(i);
 			_toRowComboBox.addItem(i);
 		}
 
-		for (int i = 0; i < _ctrl.getSimulator().get_map_info().get_cols(); i++) {
+		for (int i = 0; i < _dataTable.getColumnCount(); i++) {
 			_fromColComboBox.addItem(i);
 			_toColComboBox.addItem(i);
 		}
@@ -130,62 +130,75 @@ class ChangeRegionsDialog extends JDialog implements EcoSysObserver {
 	}
 
 	private void applyChanges() {
-		int fromRow = (Integer) _fromRowComboBox.getSelectedItem();
-		int toRow = (Integer) _toRowComboBox.getSelectedItem();
-		int fromCol = (Integer) _fromColComboBox.getSelectedItem();
-		int toCol = (Integer) _toColComboBox.getSelectedItem();
+	    int fromRow = (Integer) _fromRowComboBox.getSelectedItem();
+	    int toRow = (Integer) _toRowComboBox.getSelectedItem();
+	    int fromCol = (Integer) _fromColComboBox.getSelectedItem();
+	    int toCol = (Integer) _toColComboBox.getSelectedItem();
 
-		for (int row = fromRow; row <= toRow; row++)
-			for (int col = fromCol; col <= toCol; col++)
-				applyRegionSettings(row, col);
+	    JSONArray regions = new JSONArray(); // Prepare an array to hold all region modifications
 
-		setVisible(false);
+	    // Collect region definitions based on selected rows and columns
+	    for (int row = fromRow; row <= toRow; row++) {
+	        for (int col = fromCol; col <= toCol; col++) {
+	            JSONObject region = applyRegionSettings(row, col);
+	            regions.put(region); // Add each region configuration to the array
+	        }
+	    }
+
+	    try {
+	        _ctrl.set_regions(regions); // Apply all changes at once with a single call
+	    } 
+	    catch (Exception e) {
+	        ViewUtils.showErrorMsg("Error applying changes");
+	    }
+	    setVisible(false);
 	}
 
-	private void applyRegionSettings(int row, int col) {
-		JSONObject regionData = new JSONObject();
-		for (int i = 0; i < _dataTable.getRowCount(); i++) {
-			String key = _dataTable.getValueAt(i, 0).toString();
-			String value = _dataTable.getValueAt(i, 1).toString();
-			if (!value.isEmpty()) {
-				regionData.put(key, value);
-			}
-		}
+	private JSONObject applyRegionSettings(int row, int col) {
+	    JSONObject regionData = new JSONObject();
+	    for (int i = 0; i < _dataTable.getRowCount(); i++) 
+	    {
+	        String key = _dataTable.getValueAt(i, 0).toString();
+	        String value = _dataTable.getValueAt(i, 1).toString();
+	        if (!value.isEmpty()) 
+	            regionData.put(key, value); // Only add parameters that have been set
+	    }
 
-		String regionType = _regionsComboBox.getSelectedItem().toString();
+	    String regionType = _regionsComboBox.getSelectedItem().toString();
 
-		JSONObject region = new JSONObject();
-		region.put("row", new JSONArray(new int[] { row, row }));
-		region.put("col", new JSONArray(new int[] { col, col }));
-		JSONObject spec = new JSONObject();
-		spec.put("type", regionType);
-		spec.put("data", regionData);
-		region.put("spec", spec);
+	    // Create JSON structure for a region
+	    JSONObject region = new JSONObject();
+	    region.put("row", new JSONArray(new int[] { row, row }));
+	    region.put("col", new JSONArray(new int[] { col, col }));
+	    JSONObject spec = new JSONObject();
+	    spec.put("type", regionType);
+	    spec.put("data", regionData);
+	    region.put("spec", spec);
 
-		JSONArray regions = new JSONArray(); // Wrap the single region object in an array
-		regions.put(region);
-
-		try {
-			_ctrl.set_regions(regions);
-		} catch (Exception e) {
-			ViewUtils.showErrorMsg(e.getMessage());
-		}
+	    return region;
 	}
 
 	private void updateTableBasedOnRegionType(String regionType, DefaultTableModel model) {
 		model.setRowCount(0); // Clear existing data
-		JSONObject info = null;
 
-		for (int i = 0; i < Main._regions_factory.get_info().size(); i++)
-			info = Main._regions_factory.get_info().get(i);
+	    // Find the region information based on the selected type
+	    JSONObject selectedRegionInfo = null;
+	    for (int i = 0; i < Main._regions_factory.get_info().size(); i++) {
+	        JSONObject info = Main._regions_factory.get_info().get(i);
+	        if (info.getString("type").equals(regionType)) {
+	            selectedRegionInfo = info;
+	            break;
+	        }
+	    }
 
-		if (info != null) {
-			JSONObject data = info.getJSONObject("data");
-			for (String key : data.keySet()) {
-				String description = data.getString(key);
-				model.addRow(new Object[] { key, "", description });
-			}
-		}
+	    // Update the model with the data of the selected region type
+	    if (selectedRegionInfo != null) {
+	        JSONObject data = selectedRegionInfo.getJSONObject("data");
+	        for (String key : data.keySet()) {
+	            String description = data.getString(key);
+	            model.addRow(new Object[] { key, "", description }); // Update table with data keys and descriptions
+	        }
+	    }
 	}
 
 	public void open(Frame parent) {

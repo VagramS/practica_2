@@ -4,6 +4,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import simulator.control.Controller;
 import simulator.model.*;
+import simulator.model.MapInfo.RegionData;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -14,7 +15,27 @@ class RegionsTableModel extends AbstractTableModel implements EcoSysObserver {
 	private Controller _ctrl;
 	private List<MapInfo.RegionData> regionDataList;
 	private List<String> columnNames;
-
+	private List<Info> regionInfoList = new ArrayList<>();
+	
+	static class Info {
+		int row;
+		int col;
+		String desc;
+		int[] dietCounts;
+		
+		Info(RegionData r){
+			this.row = r.row();
+			this.col = r.col();
+			this.desc = r.r().toString();
+			this.dietCounts = new int[Diet.values().length];
+			
+			for(AnimalInfo a: r.r().getAnimalsInfo())
+			{
+				dietCounts[a.get_diet().ordinal()]++;
+			}
+		}
+	}
+	
 	RegionsTableModel(Controller ctrl) {
 		this._ctrl = ctrl;
 		this.regionDataList = new ArrayList<>();
@@ -40,7 +61,7 @@ class RegionsTableModel extends AbstractTableModel implements EcoSysObserver {
 	}
 
 	public int getRowCount() {
-		return regionDataList.size();
+		return regionInfoList.size(); 
 	}
 
 	public int getColumnCount() {
@@ -52,33 +73,35 @@ class RegionsTableModel extends AbstractTableModel implements EcoSysObserver {
 	}
 
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		if (rowIndex < 0 || rowIndex >= getRowCount()) {
-			throw new IndexOutOfBoundsException("Row index out of bounds: " + rowIndex);
-		}
-		if (columnIndex < 0 || columnIndex >= getColumnCount()) {
-			throw new IndexOutOfBoundsException("Column index out of bounds: " + columnIndex);
-		}
-
-		MapInfo.RegionData regionData = regionDataList.get(rowIndex);
-		switch (columnIndex) {
-		case 0:
-			return regionData.row();
-		case 1:
-			return regionData.col();
-		case 2:
-			return regionData.r().toString();
-		default:
-			return getAnimalCountByDiet(regionData.r(), Diet.values()[columnIndex - 3]);
-		}
-	}
-
-	private int getAnimalCountByDiet(RegionInfo region, Diet diet) {
-		return (int) region.getAnimalsInfo().stream().filter(a -> a.get_diet() == diet).count();
+	    if (rowIndex < 0 || rowIndex >= regionInfoList.size()) 
+	        throw new IndexOutOfBoundsException("Row index out of bounds or list is empty: " + rowIndex);
+	    
+	    if (columnIndex < 0 || columnIndex >= getColumnCount()) 
+	        throw new IndexOutOfBoundsException("Column index out of bounds: " + columnIndex);
+	    
+	    if (regionInfoList.isEmpty())
+	        return null;
+	    
+	    Info info = regionInfoList.get(rowIndex);
+	    switch (columnIndex) {
+	    case 0:
+	        return info.row;
+	    case 1:
+	        return info.col;
+	    case 2:
+	        return info.desc;
+	    default:
+	        return info.dietCounts[columnIndex - 3];
+	    }
 	}
 
 	public void refreshData() {
 		SwingUtilities.invokeLater(() -> {
-			initializeRegionData();
+			regionInfoList.clear();
+            Iterator<MapInfo.RegionData> regionIterator = _ctrl.getSimulator().get_map_info().iterator();
+            while (regionIterator.hasNext()) {
+                regionInfoList.add(new Info(regionIterator.next()));
+            }
 			fireTableDataChanged();
 		});
 	}

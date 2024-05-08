@@ -84,14 +84,14 @@ public class Main {
 		CommandLineParser parser = new DefaultParser();
 		try {
 			CommandLine line = parser.parse(cmdLineOptions, args);
+			parse_mode_option(line);
 			parse_help_option(line, cmdLineOptions);
 			parse_in_file_option(line);
 			parse_time_option(line);
 			parse_delta_time_option(line);
 			parse_out_file_option(line);
 			parse_simple_viewer_option(line);
-			parse_mode_option(line);
-
+			
 			// if there are some remaining arguments, then something wrong is
 			// provided in the command line!
 			//
@@ -160,17 +160,16 @@ public class Main {
 	}
 
 	private static void parse_mode_option(CommandLine line) throws ParseException {
-		if (line.hasOption("m")) {
-			String mode = line.getOptionValue("m");
-			if ("BATCH".equalsIgnoreCase(mode))
-				_mode = ExecMode.BATCH;
-			else if ("GUI".equalsIgnoreCase(mode))
-				_mode = ExecMode.GUI;
-			else
-				throw new IllegalArgumentException("This mode doesn't exist");
-		} else
-			throw new ParseException("No mode selected");
+		 _mode = ExecMode.GUI;
 
+		 // Check if the 'm' option is provided
+		 if (line.hasOption("m")) {
+		    String mode = line.getOptionValue("m");
+		    if ("BATCH".equalsIgnoreCase(mode)) 
+		        _mode = ExecMode.BATCH;
+		    else if (!"GUI".equalsIgnoreCase(mode)) 
+		        throw new IllegalArgumentException("This mode doesn't exist");
+		 }
 	}
 
 	private static void parse_in_file_option(CommandLine line) throws ParseException {

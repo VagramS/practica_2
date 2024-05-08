@@ -29,7 +29,6 @@ class ControlPanel extends JPanel {
 	private static final int STEPS_DEFAULT_VALUE = 10000;
 	private static final double DELTA_TIME_DEFAULT_VALUE = 0.03;
 
-	// TODO añade más atributos aquí …
 	ControlPanel(Controller ctrl) {
 		_ctrl = ctrl;
 		initGUI();
@@ -42,19 +41,20 @@ class ControlPanel extends JPanel {
 
 		// File chooser
 		_fc = new JFileChooser();
-		_fc.setCurrentDirectory(new File(System.getProperty("user.dir") + "/recources/examples"));
+		_fc.setCurrentDirectory(new File(System.getProperty("user.dir") + "/resources/examples"));
 
 		// Open Button
 		_toolaBar.addSeparator();
 		_openButton = new JButton();
 		_openButton.setToolTipText("Load an input file into the simulator");
-		_openButton.setIcon(new ImageIcon("recources/icons/open.png"));
+		_openButton.setIcon(new ImageIcon("resources/icons/open.png"));
 		_openButton.addActionListener((e) -> {
 			int returnVal = _fc.showOpenDialog(ViewUtils.getWindow(this));
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = _fc.getSelectedFile();
-				_ctrl.getSimulator().reset(_ctrl.getSimulator().get_map_info().get_cols(),
-						_ctrl.getSimulator().get_map_info().get_rows(), _ctrl.getSimulator().get_map_info().get_width(),
+				_ctrl.reset(_ctrl.getSimulator().get_map_info().get_cols(), 
+						_ctrl.getSimulator().get_map_info().get_rows(), 
+						_ctrl.getSimulator().get_map_info().get_width(), 
 						_ctrl.getSimulator().get_map_info().get_height());
 				_ctrl.loadFile(file);
 			}
@@ -65,7 +65,7 @@ class ControlPanel extends JPanel {
 		// Viewer Button
 		_viewerButton = new JButton();
 		_viewerButton.setToolTipText("Map Viewer");
-		_viewerButton.setIcon(new ImageIcon("recources/icons/viewer.png"));
+		_viewerButton.setIcon(new ImageIcon("resources/icons/viewer.png"));
 		_viewerButton.addActionListener(e -> {
 			new MapWindow(ViewUtils.getWindow(this), _ctrl);
 		});
@@ -74,7 +74,7 @@ class ControlPanel extends JPanel {
 		// Regions Button
 		_regionsButton = new JButton();
 		_regionsButton.setToolTipText("Change Regions");
-		_regionsButton.setIcon(new ImageIcon("recources/icons/regions.png"));
+		_regionsButton.setIcon(new ImageIcon("resources/icons/regions.png"));
 		_regionsButton.addActionListener(e -> {
 			_changeRegionsDialog.setVisible(true);
 		});
@@ -84,13 +84,13 @@ class ControlPanel extends JPanel {
 		// Run Button
 		_runButton = new JButton();
 		_runButton.setToolTipText("Run the simulation");
-		_runButton.setIcon(new ImageIcon("recources/icons/run.png"));
+		_runButton.setIcon(new ImageIcon("resources/icons/run.png"));
 		_toolaBar.add(_runButton);
 
 		// Stop Button
 		_stopButton = new JButton();
 		_stopButton.setToolTipText("Stop the simulation");
-		_stopButton.setIcon(new ImageIcon("recources/icons/stop.png"));
+		_stopButton.setIcon(new ImageIcon("resources/icons/stop.png"));
 		_stopButton.addActionListener(e -> {
 			_stopped = true;
 		});
@@ -150,7 +150,7 @@ class ControlPanel extends JPanel {
 		_toolaBar.addSeparator();
 		_quitButton = new JButton();
 		_quitButton.setToolTipText("Exit");
-		_quitButton.setIcon(new ImageIcon("recources/icons/exit.png"));
+		_quitButton.setIcon(new ImageIcon("resources/icons/exit.png"));
 		_quitButton.addActionListener((e) -> System.exit(0));
 		_toolaBar.add(_quitButton);
 

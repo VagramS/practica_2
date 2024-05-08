@@ -20,12 +20,14 @@ class SpeciesTableModel extends AbstractTableModel implements EcoSysObserver {
 	private List<AnimalInfo> animals;
 	private Map<String, Map<State, Integer>> speciesStateCounts;
 	private List<String> columnNames;
+	private List<String> speciesList;
 
 	SpeciesTableModel(Controller ctrl) {
 		this._ctrl = ctrl;
 		this.animals = new ArrayList<>();
 		this.speciesStateCounts = new HashMap<>();
 		this.columnNames = new ArrayList<>();
+		this.speciesList = new ArrayList<>();
 		this.columnNames.add("Species");
 
 		for (State state : State.values()) {
@@ -36,7 +38,7 @@ class SpeciesTableModel extends AbstractTableModel implements EcoSysObserver {
 	}
 
 	public int getRowCount() {
-		return speciesStateCounts.size();
+		return speciesList.size();
 	}
 
 	public int getColumnCount() {
@@ -48,14 +50,13 @@ class SpeciesTableModel extends AbstractTableModel implements EcoSysObserver {
 	}
 
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		if (rowIndex < 0 || rowIndex >= getRowCount()) {
+		if (rowIndex < 0 || rowIndex >= getRowCount()) 
 			throw new IndexOutOfBoundsException("Row index out of bounds: " + rowIndex);
-		}
-		if (columnIndex < 0 || columnIndex >= getColumnCount()) {
+		
+		if (columnIndex < 0 || columnIndex >= getColumnCount()) 
 			throw new IndexOutOfBoundsException("Column index out of bounds: " + columnIndex);
-		}
 
-		String species = new ArrayList<>(speciesStateCounts.keySet()).get(rowIndex);
+		String species = speciesList.get(rowIndex);
 		if (columnIndex == 0) {
 			return species;
 		}
@@ -74,11 +75,13 @@ class SpeciesTableModel extends AbstractTableModel implements EcoSysObserver {
 
 	private void countStates() {
 		speciesStateCounts.clear();
+		speciesList.clear();
 		for (AnimalInfo animal : animals) {
 			speciesStateCounts.putIfAbsent(animal.get_genetic_code(), new HashMap<>());
 			State state = animal.get_state();
 			speciesStateCounts.get(animal.get_genetic_code()).merge(state, 1, Integer::sum);
 		}
+		speciesList.addAll(speciesStateCounts.keySet());
 	}
 
 	public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) {

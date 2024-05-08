@@ -123,8 +123,8 @@ public class Controller {
 	public void removeObserver(EcoSysObserver o) {
 		_sim.removeObserver(o);
 	}
-
-	public Simulator getSimulator() {
-		return _sim;
+	
+	public Simulator getSimulator(){
+		return this._sim;
 	}
 }
